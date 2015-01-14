@@ -1,0 +1,57 @@
+configurations {
+    jaxws
+}
+
+dependencies {
+    jaxws 'com.sun.xml.ws:jaxws-tools:2.2.10-b140310.1920'
+    compile project(':config')
+
+    if (env == 'development') {
+        compile project(':config:development')
+    } else if (env == 'staging') {
+        compile project(':config:staging')
+    } else if (env == 'production') {
+        compile project(':config:production')
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/generated'
+        }
+    }
+}
+
+task wsimport {
+    ext.destDir = file("${projectDir}/src/main/generated")
+    ext.wsdlLocation = projectDir.toString() + '/src/main/resources/wsdl/VACP_WSDL_1_101.wsdl'
+    ext.wsdlRuntimeLocation = 'wsdl/VACP_WSDL_1_101.wsdl'
+
+    doLast {
+        ant {
+            sourceSets.main.output.classesDir.mkdirs()
+            destDir.mkdirs()
+            taskdef(name: 'wsimport',
+                    classname: 'com.sun.tools.ws.ant.WsImport',
+                    classpath: configurations.jaxws.asPath
+            )
+            wsimport(keep: true,
+                    destdir: sourceSets.main.output.classesDir,
+                    sourcedestdir: destDir,
+                    extension: "true",
+                    verbose: "false",
+                    quiet: "false",
+                    package: "id.co.veritrans.vacp.client.ws",
+                    xnocompile: "true",
+                    wsdl: wsdlLocation,
+                    wsdlLocation: wsdlRuntimeLocation) {
+                xjcarg(value: "-XautoNameResolution")
+            }
+        }
+    }
+}
+
+compileJava {
+    dependsOn wsimport
+}

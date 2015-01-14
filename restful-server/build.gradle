@@ -1,0 +1,28 @@
+dependencies {
+    compile project(':vacp-ws-client')
+
+    if (env == 'development' || env == 'staging') {
+        compile project(':vacp-ws-simulator')
+    }
+
+    compile 'com.typesafe:config:1.2.1'
+    compile 'org.apache.cxf:cxf-rt-frontend-jaxrs:3.0.3'
+    compile 'org.apache.cxf:cxf-rt-frontend-jaxws:3.0.3'
+
+    compile "org.springframework:spring-context:$libSpringFrameworkVersion"
+    compile "org.springframework:spring-context-support:$libSpringFrameworkVersion"
+    compile "org.springframework:spring-web:$libSpringFrameworkVersion"
+    compile "org.springframework:spring-aspects:$libSpringFrameworkVersion"
+    compile "org.springframework:spring-aop:$libSpringFrameworkVersion"
+    compile "org.aspectj:aspectjweaver:$libAspectjVersion"
+
+    compile "com.fasterxml.jackson.core:jackson-databind:$libJacksonVersion"
+    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$libJacksonVersion"
+    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-xml-provider:$libJacksonVersion"
+
+    compile "javax.validation:validation-api:$libJavaxValidationVersion"
+    compile "org.hibernate:hibernate-validator:$libHibernateValidatorVersion"
+
+    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.6.v20141205'
+    compile 'javax:javaee-api:7.0'
+}

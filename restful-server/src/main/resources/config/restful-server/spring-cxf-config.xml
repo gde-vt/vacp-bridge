@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context.xsd
+			http://cxf.apache.org/core
+			http://cxf.apache.org/schemas/core.xsd
+			http://cxf.apache.org/jaxrs
+			http://cxf.apache.org/schemas/jaxrs.xsd
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop.xsd" default-autowire="byName">
+
+    <context:annotation-config />
+    <context:component-scan base-package="id.co.veritrans"/>
+    <aop:aspectj-autoproxy />
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+
+    <bean id="beanValidator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+
+    <bean id="cxfValidationProvider" class="org.apache.cxf.validation.BeanValidationProvider" />
+    <bean id="validationInInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor">
+        <property name="provider" ref="cxfValidationProvider" />
+    </bean>
+
+    <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+    <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <ref bean="logInbound"/>
+            <ref bean="validationInInterceptor"/>
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <ref bean="logOutbound"/>
+        </cxf:outInterceptors>
+        <cxf:outFaultInterceptors>
+            <ref bean="logOutbound"/>
+        </cxf:outFaultInterceptors>
+        <cxf:inFaultInterceptors>
+            <ref bean="logInbound"/>
+        </cxf:inFaultInterceptors>
+    </cxf:bus>
+
+    <!-- Begin CXF Provider -->
+    <bean id="jsonProvider" class="id.co.veritrans.restfulserver.cxf.JacksonJsonCxfProvider">
+        <property name="jacksonDelegate">
+            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
+                <property name="mapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper" />
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="xmlProvider" class="id.co.veritrans.restfulserver.cxf.JacksonXmlCxfProvider">
+        <property name="jacksonDelegate">
+            <bean class="com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider">
+                <property name="mapper">
+                    <bean class="com.fasterxml.jackson.dataformat.xml.XmlMapper" />
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <!-- Begin CXF Configuration -->
+    <jaxrs:server id="restfulServer" address="/">
+        <jaxrs:serviceBeans>
+            <ref bean="testServiceImpl" />
+        </jaxrs:serviceBeans>
+
+        <jaxrs:providers>
+            <ref bean="jsonProvider" />
+            <ref bean="xmlProvider" />
+        </jaxrs:providers>
+
+        <jaxrs:extensionMappings>
+            <entry key="json" value="application/json" />
+            <entry key="xml" value="application/xml" />
+        </jaxrs:extensionMappings>
+    </jaxrs:server>
+    <!-- End CXF Configuration -->
+</beans>

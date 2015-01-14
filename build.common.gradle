@@ -1,0 +1,49 @@
+apply plugin: 'java'
+apply plugin: 'scala'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.slf4j:slf4j-api:$libSlf4jVersion"
+    compile "org.slf4j:jcl-over-slf4j:$libSlf4jVersion"
+    compile "org.slf4j:log4j-over-slf4j:$libSlf4jVersion"
+    compile "ch.qos.logback:logback-classic:$libLogbackVersion"
+    compile 'org.functionaljava:functionaljava:4.2'
+
+    testCompile "junit:junit:${libJunitVersion}"
+}
+
+jar {
+    manifest.attributes provider: 'gradle'
+}
+
+configurations.all {
+    resolutionStrategy {
+        // fail eagerly on version conflict (includes transitive dependencies)
+        // e.g. multiple different versions of the same dependency (group and name are equal)
+        failOnVersionConflict()
+
+        // force certain versions of dependencies (including transitive)
+        //  *append new forced modules:
+        force "org.slf4j:slf4j-api:$libSlf4jVersion",
+                "org.slf4j:jcl-over-slf4j:$libSlf4jVersion",
+                "ch.qos.logback:logback-classic:$libLogbackVersion",
+                "com.sun.xml.bind:jaxb-xjc:2.2.10-b140310.1920",
+                "com.sun.xml.bind:jaxb-impl:2.2.10-b140310.1920",
+                "com.sun.xml.bind:jaxb-core:2.2.10-b140310.1920",
+                "commons-lang:commons-lang:2.6",
+                "org.apache.httpcomponents:httpcore:4.3.3",
+                "org.apache.httpcomponents:httpcore-nio:4.3.3",
+                "org.codehaus.woodstox:woodstox-core-asl:4.4.1",
+                "org.codehaus.woodstox:stax2-api:3.1.4",
+                "net.sf.ehcache:ehcache:2.8.5",
+                "commons-codec:commons-codec:1.9",
+                "org.apache.santuario:xmlsec:2.0.2"
+    }
+    exclude group: 'commons-logging', module: 'commons-logging'
+    exclude group: 'log4j', module: 'log4j'
+    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    exclude group: 'org.slf4j', module: 'slf4j-jdk14'
+}
